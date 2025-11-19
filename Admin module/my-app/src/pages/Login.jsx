@@ -25,7 +25,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   // Your backend login API
-  const API_URL = "http://localhost:3000/api/admin/login";
+  const API_URL = "http://localhost:3001/api/admin/login";
 
   // ----------------------------
   // LOGIN API CALL

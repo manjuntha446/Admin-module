@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 const Vendor = () => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [stats, setStats] = useState({
     totalVendors: 0,
     approved: 0,
@@ -36,9 +37,10 @@ const Vendor = () => {
       const rejected = data.filter((v) => v.status === "Rejected").length;
 
       setStats({ totalVendors: total, approved, pending, rejected });
+      setError("");
     } catch (err) {
       console.error(err);
-      alert("Error loading vendor data");
+      setError("Error loading vendor data. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -49,6 +51,7 @@ const Vendor = () => {
   // ===========================
   async function updateStatus(id, newStatus) {
     try {
+      setError("");
       const res = await fetch(`${API_URL}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +69,7 @@ const Vendor = () => {
       fetchVendors();
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      setError(err.message || "Unable to update vendor status.");
     }
   }
 
@@ -78,6 +81,12 @@ const Vendor = () => {
       <h1 className="text-3xl font-bold mb-6 text-center">
         Vendor Management 🏢
       </h1>
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

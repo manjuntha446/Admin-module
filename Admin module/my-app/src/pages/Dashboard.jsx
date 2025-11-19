@@ -101,114 +101,130 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#1C4452] text-white ml-4 md:ml-6 lg:ml-8 transition-all">
-      {/* Header Section */}
-      <div className="bg-[#DDEEF3] px-8 py-8 shadow-md rounded-tl-3xl text-center">
-        {/* ✅ Centered Logo */}
-        <div className="flex justify-center mb-4">
-          <img
-            src={logo}
-            alt="Dashboard Logo"
-            className="h-16 w-auto object-contain"
-          />
-        </div>
-
-        <h1 className="text-3xl font-bold text-[#1C4452]">
-          Dashboard Overview
-        </h1>
-        <p className="text-[#1C4452]/80 mt-1">
-          Monitor your platform performance and key metrics
-        </p>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#01060F] via-[#031226] to-[#041B37] text-white">
+      {/* ambient glow layers */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-32 left-1/3 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
+        <div className="absolute bottom-0 right-5 h-80 w-80 rounded-full bg-sky-500/20 blur-[120px]" />
       </div>
 
-      {/* Main Section */}
-      <div className="flex-1 p-8 bg-[#1C4452] space-y-8 overflow-auto rounded-tl-3xl">
-        {/* Stats Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => (
-            <StatCard
-              key={stat.title}
-              {...stat}
-              className="bg-white text-[#1C4452] shadow-md border border-[#DDEEF3]/40 hover:shadow-lg transition"
-            />
-          ))}
-        </div>
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:px-10">
+        {/* Header Section */}
+        <section className="rounded-[32px] border border-white/10 bg-white/5 px-6 py-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+          <div className="flex justify-center">
+            <div className="rounded-full border border-white/20 bg-white/10 p-4">
+              <img
+                src={logo}
+                alt="Dashboard Logo"
+                className="h-12 w-12 object-contain"
+              />
+            </div>
+          </div>
+          <h1 className="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+            Dashboard Overview
+          </h1>
+          <p className="mt-2 text-base text-white/70">
+            Monitor your platform performance and key metrics
+          </p>
 
-        {/* Revenue Insights & Recent Bookings */}
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Revenue Insights */}
-          <Card className="bg-white text-[#1C4452] shadow-lg border border-[#DDEEF3]/50 rounded-2xl hover:shadow-xl transition">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#00A389]">
-                <TrendingUp className="h-5 w-5 text-[#00A389]" />
-                Revenue Insights
-              </CardTitle>
-              <CardDescription className="text-[#1C4452]/70">
-                Performance metrics for the current month
-              </CardDescription>
-            </CardHeader>
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs font-semibold uppercase tracking-widest text-white/60">
+            <span className="rounded-full border border-white/20 px-4 py-1">
+              Real-time sync
+            </span>
+            <span className="rounded-full border border-white/20 px-4 py-1">
+              Secure workspace
+            </span>
+            <span className="rounded-full border border-white/20 px-4 py-1">
+              Live KPIs
+            </span>
+          </div>
+        </section>
 
-            <CardContent className="space-y-5">
-              {[ 
-                { label: "Daily Revenue", value: "₹45,280", percent: 75 },
-                { label: "Active Subscriptions", value: "3,000", percent: 60 },
-                { label: "Vendor Response Rate", value: "92%", percent: 92 },
-              ].map((item) => (
-                <div key={item.label} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#1C4452]/80">
-                      {item.label}
-                    </span>
-                    <span className="text-lg font-semibold text-[#1C4452]">
-                      {item.value}
-                    </span>
+        {/* Main Section */}
+        <section className="space-y-10">
+          {/* Stats Grid */}
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {stats.map((stat) => (
+              <StatCard
+                key={stat.title}
+                {...stat}
+                className="rounded-3xl border border-white/15 bg-white/90 text-slate-900 shadow-xl shadow-black/10 transition hover:-translate-y-1 hover:shadow-2xl"
+              />
+            ))}
+          </div>
+
+          {/* Revenue Insights & Recent Bookings */}
+          <div className="grid gap-8 lg:grid-cols-2">
+            {/* Revenue Insights */}
+            <Card className="rounded-3xl border border-white/10 bg-white/95 text-[#0F172A] shadow-2xl shadow-black/15">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-[#00A389]">
+                  <TrendingUp className="h-5 w-5 text-[#00A389]" />
+                  Revenue Insights
+                </CardTitle>
+                <CardDescription className="text-[#1C4452]/70">
+                  Performance metrics for the current month
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-5">
+                {[
+                  { label: "Daily Revenue", value: "₹45,280", percent: 75 },
+                  { label: "Active Subscriptions", value: "3,000", percent: 60 },
+                  { label: "Vendor Response Rate", value: "92%", percent: 92 },
+                ].map((item) => (
+                  <div key={item.label} className="space-y-3 rounded-2xl border border-slate-100/80 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#1C4452]/80">
+                        {item.label}
+                      </span>
+                      <span className="text-lg font-semibold text-[#1C4452]">
+                        {item.value}
+                      </span>
+                    </div>
+
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-[#E3EEF6]">
+                      <div
+                        className={`h-full ${getProgressColor(
+                          item.percent
+                        )} rounded-full transition-all duration-500 ease-out`}
+                        style={{ width: `${item.percent}%`, minWidth: "5%" }}
+                      />
+                    </div>
                   </div>
+                ))}
+              </CardContent>
+            </Card>
 
-                  <div className="w-full h-2 bg-[#DDEEF3] rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${getProgressColor(
-                        item.percent
-                      )} rounded-full transition-all duration-500 ease-out`}
-                      style={{ width: `${item.percent}%`, minWidth: "5%" }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+            {/* Recent Bookings */}
+            <Card className="rounded-3xl border border-white/10 bg-white/95 text-[#0F172A] shadow-2xl shadow-black/15">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-[#00A389]">
+                  <Clock className="h-5 w-5 text-[#00A389]" />
+                  Recent Bookings
+                </CardTitle>
+                <CardDescription className="text-[#1C4452]/70">
+                  Latest service requests and their status
+                </CardDescription>
+              </CardHeader>
 
-          {/* Recent Bookings */}
-          <Card className="bg-white text-[#1C4452] shadow-lg border border-[#DDEEF3]/50 rounded-2xl hover:shadow-xl transition">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-[#00A389]">
-                <Clock className="h-5 w-5 text-[#00A389]" />
-                Recent Bookings
-              </CardTitle>
-              <CardDescription className="text-[#1C4452]/70">
-                Latest service requests and their status
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              <div className="space-y-4">
+              <CardContent className="space-y-4">
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#DDEEF3] pb-3 last:border-0 last:pb-0"
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="space-y-1 flex-1">
-                      <p className="text-sm font-medium text-[#1C4452]">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-[#0F172A]">
                         {booking.customer}
                       </p>
                       <p className="text-xs text-[#1C4452]/70">
                         {booking.service} • {booking.vendor}
                       </p>
-                      <p className="text-xs text-[#1C4452]/60">
-                        {booking.time}
-                      </p>
+                      <p className="text-xs text-[#1C4452]/60">{booking.time}</p>
                     </div>
                     <span
-                      className={`text-xs font-medium px-2 py-1 mt-2 sm:mt-0 rounded-full ${getStatusColor(
+                      className={`self-start rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(
                         booking.status
                       )}`}
                     >
@@ -216,10 +232,10 @@ const Dashboard = () => {
                     </span>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </div>
     </div>
   );

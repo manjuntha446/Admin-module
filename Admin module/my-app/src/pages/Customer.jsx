@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 const Customer = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeCustomers: 0,
     newThisMonth: 0,
   });
 
-  const API_URL = "http://localhost:3000/api/customers"; // Update as needed
+  const API_URL = "http://localhost:3001/api/customers"; // Update as needed
 
   useEffect(() => {
     fetchCustomers();
@@ -39,9 +40,10 @@ const Customer = () => {
         activeCustomers: active,
         newThisMonth: thisMonth,
       });
+      setError("");
     } catch (err) {
       console.error(err);
-      alert("Failed to load customers");
+      setError("Failed to load customers. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -75,6 +77,12 @@ const Customer = () => {
           Manage and track customer activity efficiently
         </p>
       </div>
+
+      {error && (
+        <div className="relative z-10 mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Stats Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 relative z-10">

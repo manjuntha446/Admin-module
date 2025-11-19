@@ -9,6 +9,7 @@ const Subscription = () => {
     status: "Active",
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const API_URL = "http://localhost:3000/api/subscriptions"; // 🔧 update if needed
 
@@ -23,9 +24,10 @@ const Subscription = () => {
       const res = await fetch(API_URL);
       const data = await res.json();
       setSubscriptions(data);
+      setError("");
     } catch (err) {
       console.error(err);
-      alert("Failed to load subscriptions");
+      setError("Failed to load subscriptions. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -41,6 +43,7 @@ const Subscription = () => {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      setError("");
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,21 +62,20 @@ const Subscription = () => {
       });
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      setError(err.message || "Unable to add subscription.");
     }
   }
 
   // Delete a subscription
   async function handleDelete(id) {
-    if (!window.confirm("Are you sure you want to delete this subscription?"))
-      return;
     try {
+      setError("");
       const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete subscription");
       setSubscriptions((prev) => prev.filter((s) => s._id !== id));
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      setError(err.message || "Unable to delete subscription.");
     }
   }
 
@@ -83,6 +85,12 @@ const Subscription = () => {
       <h1 className="text-2xl font-bold mb-4 text-center">
         Subscription Management 💳
       </h1>
+
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Add Subscription Form */}
       <form

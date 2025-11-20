@@ -1,29 +1,46 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js";
-import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
-// 🟢 Register Admin (one-time setup)
+/* ===========================================================
+   REGISTER ADMIN  (Run only once to create an admin account)
+   =========================================================== */
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password)
+      return res.status(400).json({ message: "Email and password required" });
+
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin)
       return res.status(400).json({ message: "Admin already exists" });
 
-    const admin = await Admin.create({ email, password });
-    res.status(201).json({ message: "Admin created successfully", admin });
+    // Use new Admin() + save() so pre-save hashing works correctly
+    const admin = new Admin({ email, password });
+    await admin.save();
+
+    res.status(201).json({
+      message: "Admin created successfully",
+      admin: { email: admin.email },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Register Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-// 🟠 Login Admin
+/* ===========================================================
+   LOGIN ADMIN
+   =========================================================== */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password)
+      return res.status(400).json({ message: "Email and password required" });
 
     const admin = await Admin.findOne({ email });
     if (!admin)
@@ -33,9 +50,11 @@ router.post("/login", async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid email or password" });
 
-    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: admin._id },
+      process.env.JWT_SECRET || "defaultsecret",
+      { expiresIn: "1d" }
+    );
 
     res.json({
       message: "Login successful",
@@ -43,7 +62,8 @@ router.post("/login", async (req, res) => {
       admin: { email: admin.email },
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

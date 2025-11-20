@@ -1,178 +1,145 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+import { Search } from "lucide-react";
 
-const Customer = () => {
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [stats, setStats] = useState({
-    totalCustomers: 0,
-    activeCustomers: 0,
-    newThisMonth: 0,
-  });
+const Customers = () => {
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const API_URL = "http://localhost:3001/api/customers"; // Update as needed
+  const customers = [
+    { id: 1, name: "John Doe", email: "john@example.com", phone: "+91 98765 43210", pack: "Family Pack", status: "Active", expiry: "2025-12-15", usage: "8/12" },
+    { id: 2, name: "Sarah Smith", email: "sarah@example.com", phone: "+91 98765 43211", pack: "Smart Pack", status: "Active", expiry: "2025-11-20", usage: "5/8" },
+    { id: 3, name: "Mike Johnson", email: "mike@example.com", phone: "+91 98765 43212", pack: "Starter Pack", status: "Expired", expiry: "2025-10-01", usage: "4/4" },
+    { id: 4, name: "Emma Wilson", email: "emma@example.com", phone: "+91 98765 43213", pack: "Saver Pack", status: "Active", expiry: "2025-12-30", usage: "2/6" },
+    { id: 5, name: "David Brown", email: "david@example.com", phone: "+91 98765 43214", pack: "Family Pack", status: "Pending", expiry: "2025-11-05", usage: "10/12" },
+  ];
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  async function fetchCustomers() {
-    try {
-      setLoading(true);
-      const res = await fetch(API_URL);
-      const data = await res.json();
-
-      setCustomers(data);
-
-      const total = data.length;
-      const active = data.filter((c) => c.status === "Active").length;
-      const thisMonth = data.filter((c) => {
-        const created = new Date(c.createdAt);
-        const now = new Date();
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Active":
         return (
-          created.getMonth() === now.getMonth() &&
-          created.getFullYear() === now.getFullYear()
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-success/10 text-success hover:bg-success/20">
+            {status}
+          </span>
         );
-      }).length;
-
-      setStats({
-        totalCustomers: total,
-        activeCustomers: active,
-        newThisMonth: thisMonth,
-      });
-      setError("");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load customers. Please try again later.");
-    } finally {
-      setLoading(false);
+      case "Pending":
+        return (
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-warning/10 text-warning hover:bg-warning/20">
+            {status}
+          </span>
+        );
+      case "Expired":
+        return (
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20">
+            {status}
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
+            {status}
+          </span>
+        );
     }
-  }
+  };
 
   return (
-    <div
-      className="min-h-screen p-8 relative overflow-hidden"
-      style={{
-        background: "linear-gradient(to bottom, #DDEEF3 20%, #1C4452 20%)",
-      }}
-    >
-      {/* Curved Top Accent */}
-      <div
-        className="absolute top-0 left-0 w-full h-[180px] rounded-b-[80px]"
-        style={{ backgroundColor: "#DDEEF3" }}
-      ></div>
-
-      {/* Header Section */}
-      <div className="relative z-10 text-center mb-10">
-        <h1
-          className="text-5xl font-extrabold drop-shadow-lg inline-block relative"
-          style={{ color: "#1E505C" }} // Slate Blue Title Color
-        >
-          Customer Dashboard 👥
-          <span
-            className="block mt-2 mx-auto w-24 h-1 rounded-full bg-[#00A389]"
-          ></span>
-        </h1>
-        <p className="text-[#1C4452]/70 mt-2 text-sm">
-          Manage and track customer activity efficiently
+    <div className="space-y-6">
+      {/* HEADER */}
+      <div>
+        <h1 className="text-3xl font-bold">Customer Management</h1>
+        <p className="text-muted-foreground mt-1">
+          View and manage customer subscriptions and activity
         </p>
       </div>
 
-      {error && (
-        <div className="relative z-10 mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-          {error}
-        </div>
-      )}
+      {/* TABLE CARD */}
+      <div className="rounded-lg border bg-card shadow-sm">
+        {/* TOP BAR */}
+        <div className="flex flex-col space-y-1.5 p-6">
+          <h3 className="text-2xl font-semibold">All Customers</h3>
+          <p className="text-sm text-muted-foreground">
+            Track customer subscriptions, usage, and renewal status
+          </p>
 
-      {/* Stats Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 relative z-10">
-        <div className="p-5 rounded-2xl shadow-lg border-l-4 border-[#00A389] bg-[#DDEEF3]/80 backdrop-blur-sm">
-          <p className="text-[#1C4452] text-sm">Total Customers</p>
-          <p className="text-3xl font-semibold text-[#00A389] mt-1">
-            {stats.totalCustomers}
-          </p>
+          <div className="flex items-center gap-2 mt-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                placeholder="Search customers..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex h-10 w-full rounded-md border bg-background px-10 py-2 text-sm"
+              />
+            </div>
+          </div>
         </div>
-        <div className="p-5 rounded-2xl shadow-lg border-l-4 border-[#00A389] bg-[#DDEEF3]/80 backdrop-blur-sm">
-          <p className="text-[#1C4452] text-sm">Active Customers</p>
-          <p className="text-3xl font-semibold text-[#00A389] mt-1">
-            {stats.activeCustomers}
-          </p>
-        </div>
-        <div className="p-5 rounded-2xl shadow-lg border-l-4 border-[#00A389] bg-[#DDEEF3]/80 backdrop-blur-sm">
-          <p className="text-[#1C4452] text-sm">New This Month</p>
-          <p className="text-3xl font-semibold text-[#00A389] mt-1">
-            {stats.newThisMonth}
-          </p>
-        </div>
-      </div>
 
-      {/* Customer Table */}
-      <div
-        className="bg-[#DDEEF3]/90 rounded-2xl shadow-xl overflow-hidden backdrop-blur-md border border-[#CDE4EB] relative z-10"
-      >
-        <table className="min-w-full border-collapse">
-          <thead style={{ backgroundColor: "#00A389" }}>
-            <tr>
-              {["#", "Name", "Email", "Phone", "Status", "Joined On"].map(
-                (heading) => (
-                  <th
-                    key={heading}
-                    className="text-left py-3 px-5 font-semibold text-white text-sm uppercase tracking-wide"
-                  >
-                    {heading}
-                  </th>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="text-center py-5 text-[#1C4452]">
-                  Loading customers...
-                </td>
-              </tr>
-            ) : customers.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="text-center py-5 text-[#1C4452]/80"
-                >
-                  No customers found.
-                </td>
-              </tr>
-            ) : (
-              customers.map((c, i) => (
-                <tr
-                  key={c._id}
-                  className="border-b border-[#CDE4EB] hover:bg-[#CDE4EB]/40 transition-all duration-150"
-                >
-                  <td className="py-3 px-5 text-[#1C4452]">{i + 1}</td>
-                  <td className="py-3 px-5 font-medium text-[#1C4452]">
-                    {c.firstName} {c.lastName}
-                  </td>
-                  <td className="py-3 px-5 text-[#1E505C]">{c.email}</td>
-                  <td className="py-3 px-5 text-[#1E505C]">{c.phone}</td>
-                  <td
-                    className={`py-3 px-5 font-semibold ${
-                      c.status === "Active"
-                        ? "text-[#00A389]"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {c.status || "Inactive"}
-                  </td>
-                  <td className="py-3 px-5 text-[#1E505C]">
-                    {new Date(c.createdAt).toLocaleDateString()}
-                  </td>
+        {/* TABLE */}
+        <div className="p-6 pt-0">
+          <div className="overflow-auto w-full">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="h-12 px-4 text-left">Name</th>
+                  <th className="h-12 px-4 text-left">Email</th>
+                  <th className="h-12 px-4 text-left">Phone</th>
+                  <th className="h-12 px-4 text-left">Current Pack</th>
+                  <th className="h-12 px-4 text-left">Usage</th>
+                  <th className="h-12 px-4 text-left">Expiry</th>
+                  <th className="h-12 px-4 text-left">Status</th>
+                  <th className="h-12 px-4 text-left">Actions</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+
+              <tbody>
+                {customers.map((customer) => {
+                  const [used, total] = customer.usage.split("/").map(Number);
+                  const percentage = (used / total) * 100;
+
+                  return (
+                    <tr key={customer.id} className="border-b hover:bg-muted/50">
+                      <td className="p-4 font-medium">{customer.name}</td>
+                      <td className="p-4 text-muted-foreground">{customer.email}</td>
+                      <td className="p-4 text-muted-foreground">{customer.phone}</td>
+
+                      <td className="p-4">
+                        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
+                          {customer.pack}
+                        </span>
+                      </td>
+
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{customer.usage}</span>
+                          <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary rounded-full"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="p-4 text-muted-foreground">{customer.expiry}</td>
+
+                      <td className="p-4">{getStatusBadge(customer.status)}</td>
+
+                      <td className="p-4">
+                        <button className="inline-flex items-center rounded-md text-sm border hover:bg-accent hover:text-accent-foreground h-8 px-3">
+                          View Profile
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+
+            </table>
+          </div>
+        </div>
       </div>
+
     </div>
   );
 };
 
-export default Customer;
+export default Customers;

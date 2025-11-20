@@ -1,10 +1,12 @@
+import vendor from "../models/vendor.js";
 import Vendor from "../models/vendor.js";
 
 // Get all vendors
 export const getVendors = async (req, res) => {
   try {
     const vendors = await Vendor.find();
-    res.status(200).json(vendors);
+
+    res.status(200).json({sucess:true,message:"Vendor list fetched successfully", vendor});
   } catch (error) {
     res.status(500).json({ message: "Error fetching vendors" });
   }
@@ -29,12 +31,13 @@ export const addVendor = async (req, res) => {
     const vendor = await Vendor.create({
       name: req.body.name,
       email: req.body.email,
-      serviceName: req.body.serviceName,
-      status: "Pending", // default
+      service: req.body.serviceName,
+      status: "pending", // default
     });
 
     res.status(201).json({ message: "Vendor added", vendor });
   } catch (error) {
+    console.error("Error addind",error);
     res.status(500).json({ message: "Error adding vendor" });
   }
 };

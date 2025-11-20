@@ -25,6 +25,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   // Your backend login API
+  // Adjust backend URL or use Vite env (e.g., import.meta.env.VITE_API_BASE)
   const API_URL = "http://localhost:3001/api/admin/login";
 
   // ----------------------------

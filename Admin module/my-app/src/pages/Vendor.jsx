@@ -1,63 +1,113 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Star, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Vendors = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+const [statusFilter, setStatusFilter] = useState("");
+const [categories, setCategories] = useState([]);
 
-  const vendors = [
-    { id: 1, name: "CleanPro Services", category: "Cleaning", rating: 4.8, jobs: 342, status: "Active", kyc: "Verified" },
-    { id: 2, name: "Beauty Hub", category: "Salon", rating: 4.9, jobs: 567, status: "Active", kyc: "Verified" },
-    { id: 3, name: "QuickFix Plumbing", category: "Plumbing", rating: 4.6, jobs: 289, status: "Active", kyc: "Verified" },
-    { id: 4, name: "CoolTech AC", category: "AC Repair", rating: 4.7, jobs: 198, status: "Active", kyc: "Verified" },
-    { id: 5, name: "HomeHelp Services", category: "Cleaning", rating: 4.5, jobs: 124, status: "Pending", kyc: "Pending" },
-    { id: 6, name: "Sparkle Shine", category: "Cleaning", rating: 4.3, jobs: 67, status: "Suspended", kyc: "Verified" },
-  ];
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "Active":
-        return (
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-success/10 text-success hover:bg-success/20">
-            {status}
-          </span>
-        );
-      case "Pending":
-        return (
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-warning/10 text-warning hover:bg-warning/20">
-            {status}
-          </span>
-        );
-      case "Suspended":
-        return (
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-destructive/10 text-destructive hover:bg-destructive/20">
-            {status}
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold">
-            {status}
-          </span>
-        );
+
+ const [vendors, setVendors] = useState([]);
+useEffect(() => {
+  async function fetchVendors() {
+    try {
+      const url = new URL("http://localhost:3001/api/vendors/search");
+
+      if (searchQuery) url.searchParams.append("name", searchQuery);
+      if (categoryFilter) url.searchParams.append("category", categoryFilter);
+      if (statusFilter) url.searchParams.append("status", statusFilter);
+
+      const res = await fetch(url);
+      const data = await res.json();
+      setVendors(data.vendors || []);
+      // extract unique categories
+const cats = [...new Set((data.vendors || []).map(v => v.service))];
+setCategories(cats);
+
+    } catch (error) {
+      console.error("Failed to fetch vendors", error);
     }
+  }
+
+  fetchVendors();
+}, [searchQuery, categoryFilter, statusFilter]);
+
+const getStatusBadge = (status) => {
+  const labelMap = {
+    pending: "Pending",
+    approved: "Active",
+    rejected: "Suspended",
   };
 
-  const handleApprove = (vendorName) => {
+  const label = labelMap[status] || status;
+
+  switch (label) {
+    case "Active":
+      return (
+        <span className="inline-flex items-center rounded-full bg-success/10 text-success border px-2.5 py-0.5 text-xs font-semibold">
+          {label}
+        </span>
+      );
+    case "Pending":
+      return (
+        <span className="inline-flex items-center rounded-full bg-warning/10 text-warning border px-2.5 py-0.5 text-xs font-semibold">
+          {label}
+        </span>
+      );
+    case "Suspended":
+      return (
+        <span className="inline-flex items-center rounded-full bg-destructive/10 text-destructive border px-2.5 py-0.5 text-xs font-semibold">
+          {label}
+        </span>
+      );
+    default:
+      return <span>{label}</span>;
+  }
+};
+
+
+  const handleApprove = async (id, name) => {
+  const res = await fetch(
+    `http://localhost:3001/api/vendors/approve/${id}`,
+    { method: "PUT" }
+  );
+
+  if (res.ok) {
     toast({
       title: "Vendor Approved",
-      description: `${vendorName} has been activated successfully.`,
+      description: `${name} has been approved.`,
     });
-  };
+    
+    setVendors(vendors.map(v =>
+      v._id === id ? { ...v, status: "approved" } : v
+    ));
+  }
+};
 
-  const handleReject = (vendorName) => {
+
+  const handleReject = async (id, name) => {
+  const res = await fetch(
+    `http://localhost:3001/api/vendors/reject/${id}`,
+    { method: "PUT" }
+  );
+
+  if (res.ok) {
     toast({
       title: "Vendor Rejected",
-      description: `${vendorName}'s application has been rejected.`,
+      description: `${name} has been rejected.`,
       variant: "destructive",
     });
-  };
+
+    setVendors(vendors.map(v =>
+      v._id === id ? { ...v, status: "rejected" } : v
+    ));
+  }
+};
+
 
   return (
     <div className="space-y-6">
@@ -86,6 +136,48 @@ const Vendors = () => {
               />
             </div>
           </div>
+
+
+
+
+          <div className="flex gap-3 mt-4">
+  
+  {/* Category Filter */}
+  <select
+  value={categoryFilter}
+  onChange={(e) => setCategoryFilter(e.target.value)}
+  className="border rounded-md px-3 py-2 text-sm"
+>
+  <option value="">All Categories</option>
+
+  {categories.map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+
+</select>
+
+
+  {/* Status Filter */}
+  <select
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+    className="border rounded-md px-3 py-2 text-sm"
+  >
+    <option value="">All Status</option>
+    <option value="pending">Pending</option>
+    <option value="approved">Approved</option>
+    <option value="rejected">Rejected</option>
+  </select>
+
+</div>
+
+
+
+
+
+
         </div>
 
         <div className="p-6 pt-0">
@@ -107,7 +199,8 @@ const Vendors = () => {
                 {vendors.map((vendor) => (
                   <tr key={vendor.id} className="border-b hover:bg-muted/50">
                     <td className="p-4 font-medium">{vendor.name}</td>
-                    <td className="p-4">{vendor.category}</td>
+                    <td className="p-4">{vendor.service}</td>
+
 
                     <td className="p-4">
                       <div className="flex items-center gap-1">
@@ -134,17 +227,20 @@ const Vendors = () => {
 
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        {vendor.status === "Pending" && (
+                        {vendor.status === "pending" && (
+
                           <>
                             <button
-                              onClick={() => handleApprove(vendor.name)}
+                              onClick={() => handleApprove(vendor._id, vendor.name)}
+
                               className="inline-flex items-center gap-2 rounded-md text-sm border border-success/20 hover:bg-success/10 text-success h-8 px-3"
                             >
                               <CheckCircle className="h-3 w-3" /> Approve
                             </button>
 
                             <button
-                              onClick={() => handleReject(vendor.name)}
+                              onClick={() => handleReject(vendor._id, vendor.name)}
+
                               className="inline-flex items-center gap-2 rounded-md text-sm border border-destructive/20 hover:bg-destructive/10 text-destructive h-8 px-3"
                             >
                               <XCircle className="h-3 w-3" /> Reject
@@ -152,7 +248,8 @@ const Vendors = () => {
                           </>
                         )}
 
-                        {vendor.status === "Active" && (
+                        {vendor.status === "approved" && (
+
                           <button className="inline-flex items-center gap-2 rounded-md text-sm border hover:bg-accent hover:text-accent-foreground h-8 px-3">
                             View Details
                           </button>

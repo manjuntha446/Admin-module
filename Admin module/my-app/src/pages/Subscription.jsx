@@ -11,7 +11,7 @@ const Subscription = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost:3000/api/subscriptions"; // 🔧 update if needed
+  const API_URL = "http://localhost:3001/api/subscriptions"; // 🔧 update if needed
 
   useEffect(() => {
     fetchSubscriptions();

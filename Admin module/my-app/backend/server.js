@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
 import Admin from "./models/Admin.js";
+// import  dashboardRoutes from "./routes/dashboard.routes.js";
 
 
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use("/api/admin", authRoutes);
+// app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/vendors", vendorRoutes);
 
 const PORT = process.env.PORT || 3001;
